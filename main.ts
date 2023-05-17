@@ -31,7 +31,7 @@ export default class SandboxPlugin extends Plugin {
 			this.statusBarEl.textContent = 'no lines';
 		} else {
 			const count = content ? content.split(newlinePattern).length : 0;
-			this.statusBarEl.textContent = `${count} lines`;	
+			this.statusBarEl.textContent = `${count} line` + (count === 1 ? '' : 's');	
 		}
 	}
 
