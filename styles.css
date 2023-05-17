@@ -6,3 +6,31 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+table.csv {
+  border-collapse: collapse;
+}
+table.csv,
+table.csv td {
+  border: solid 1px var(--background-modifier-border);
+}
+
+table.csv td {
+  padding: 4px 8px;
+}
+table.csv input {
+  background: none;
+  border: none;
+}
+table.csv button {
+  border: solid 1px var(--background-modifier-border);
+  border-radius: .5rem;
+  padding: .5em 1rem;
+  background: var(--color-accent);
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  transition: opacity 0.3 ease-in-out;
+}
+table.csv button:hover {
+  opacity: .75;
+}

@@ -1,51 +1,28 @@
 import { Plugin } from 'obsidian';
 
+import CsvEditor from 'features/csv-editor';
+import FeaturesAbstract from 'features/features.abstract';
+import TrackLines from 'features/track-lines';
+
 export default class SandboxPlugin extends Plugin {
-	statusBarEl: HTMLSpanElement;
+	features: FeaturesAbstract[];
 
 	onload() {
-			this.statusBarEl = this.addStatusBarItem().createEl('span');
+			this.features = [
+				new TrackLines(this),
+				new CsvEditor(this),
+			];
 
-			this.initializeStatusBar(); //run when plugin is first turned on
-
-			//change line count when tab changes (active file changes)
-			this.registerEvent(
-				this.app.workspace.on('active-leaf-change', async () => {
-					await this.initializeStatusBar();
-				})	
-			);
-
-			//change line count when doc is edited
-			this.registerEvent(
-				this.app.workspace.on('editor-change', editor => {
-					const content = editor.getDoc().getValue();
-					this.updateStatusBar(content);
-				})
-			);
+			this.features.forEach(feature => {
+				feature.onload();
+			});
 	}
 
 	onunload(): void {
-		//remove
-		this.statusBarEl.textContent = '';
+		this.features.forEach(feature => {
+			feature.onunload();
+		});
 	}
 
-	protected async updateStatusBar(content: string | null) {
-		const newlinePattern = /\r\n|\n|\r/;	
-		if (content === null) {
-			this.statusBarEl.textContent = 'no lines';
-		} else {
-			const count = content ? content.split(newlinePattern).length : 0;
-			this.statusBarEl.textContent = `${count} line` + (count === 1 ? '' : 's');	
-		}
-	}
-
-	protected async initializeStatusBar() {
-		let content: string | null = null;
-		const activeFile = this.app.workspace.getActiveFile();
-		if (activeFile) {
-			content = await this.app.vault.read(activeFile);
-		}
-		await this.updateStatusBar(content);
-	}
 	
 }
