@@ -9,15 +9,19 @@ export default class SandboxPlugin extends Plugin {
 			this.initializeStatusBar(); //run when plugin is first turned on
 
 			//change line count when tab changes (active file changes)
-			this.app.workspace.on('active-leaf-change', async () => {
-				await this.initializeStatusBar();
-			});
+			this.registerEvent(
+				this.app.workspace.on('active-leaf-change', async () => {
+					await this.initializeStatusBar();
+				})	
+			);
 
 			//change line count when doc is edited
-			this.app.workspace.on('editor-change', editor => {
-				const content = editor.getDoc().getValue();
-				this.updateStatusBar(content);
-			})
+			this.registerEvent(
+				this.app.workspace.on('editor-change', editor => {
+					const content = editor.getDoc().getValue();
+					this.updateStatusBar(content);
+				})
+			);
 	}
 
 	onunload(): void {
