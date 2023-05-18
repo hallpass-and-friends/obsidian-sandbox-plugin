@@ -2,6 +2,10 @@ import { TextFileView } from "obsidian";
 
 export const VIEW_TYPE_CSV = "csv-view";
 
+//NOTE: this CSV view is sophisticated...
+//  the algo to convert the data into CSV is very rudimentary
+//  the view is a proof of concept
+
 export class CsvView extends TextFileView {
   tableData: string[][];
   tableEl: HTMLElement;
@@ -16,7 +20,7 @@ export class CsvView extends TextFileView {
 
 
   getViewData(): string {
-      return this.tableData.map(row => row.join(", ")).join("\n");
+      return this.tableData.map(row => row.map(c => c.trim()).join(",")).join("\n");
   }
 
   setViewData(data: string, clear: boolean): void {
@@ -44,10 +48,10 @@ export class CsvView extends TextFileView {
       row.forEach((cell, j) => {
         const inputEl = rowEl
           .createEl("td")
-          .createEl("input", { value: cell });
+          .createEl("input", { value: cell.trim() });
         inputEl.oninput = (ev) => {
           if (ev.currentTarget instanceof HTMLInputElement) {
-            this.tableData[i][j] = ev.currentTarget.value;
+            this.tableData[i][j] = ev.currentTarget.value?.trim();
             this.requestSave();
           }
         }
