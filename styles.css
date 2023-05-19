@@ -1,11 +1,4 @@
-/*
-
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
+/* CsvEditor */
 table.csv {
   border-collapse: collapse;
 }
@@ -33,4 +26,40 @@ table.csv button {
 }
 table.csv button:hover {
   opacity: .75;
+}
+
+/* KeyValuePairEditor */
+.kvp-view {
+  display: block;
+}
+.kvp {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 1rem 0.5rem;
+  cursor: pointer;
+  transition: all .3 cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.kvp .key {
+  grid-column: 1;
+  font-weight: var(--bold-weight);
+  color: var(--color-accent-2);
+  text-align: right;
+  font-size: var(--font-ui-large);
+}
+.kvp .value {
+  grid-column: span 3 / span 3;
+  white-space: pre;
+  background: var(--background-secondary);
+  padding: 5px;
+  border-radius: 3px;
+  transition: all .3 cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.kvp:hover {
+  background: rgba(255,255,255, 0.1);
+}
+.kvp:hover .value {
+  background: transparent;
 }

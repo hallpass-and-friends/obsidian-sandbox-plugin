@@ -1,10 +1,32 @@
-import { IKeyValuePair } from "./kvp.models";
+import { IKeyValuePair, IKeyValuePairFilter } from "./kvp.models";
 
 export class KeyValuePairRepo {
     private _store: IKeyValuePair = {};
 
 
-    reset() {
+    get(filter?: IKeyValuePairFilter) {
+        //todo: implement the filter
+        if (filter) {
+            throw new Error('not implemented');
+        }
+
+        //immutable...
+        return {
+            ...this._store
+        }
+    }
+
+    update(key: string, value: string) {
+        this._store[key] = value;
+    }
+    
+    remove(key: string) {
+        if (typeof(this._store[key]) !== 'undefined') {
+            delete this._store[key];
+        }
+    }
+
+    clear() {
         this._store = {};
     }
 
@@ -23,6 +45,7 @@ export class KeyValuePairRepo {
             return this._postprocessStringify(json);
         } catch (error) {
             console.error("KeyValuePairRepo.load - failed", {error});
+            return '';
         }
     }
 
