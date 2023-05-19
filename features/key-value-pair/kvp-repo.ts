@@ -1,4 +1,4 @@
-import { IKeyValuePair, IKeyValuePairFilter } from "./kvp.models";
+import { IKeyValuePair, IKeyValuePairFilter, SingleKeyValuePair } from "./kvp.models";
 
 
 export class KeyValuePairRepo {
@@ -17,8 +17,15 @@ export class KeyValuePairRepo {
         }
     }
 
-    update(key: string, value: string) {
-        this._store[key] = value;
+    getValue(key: string): string {        
+        return this._store[key] || '';
+    }
+
+    update(key: string, update: SingleKeyValuePair) {
+        if (key && key !== update.key) {
+            this.remove(key);
+        }
+        this._store[update.key] = update.value;
     }
     
     remove(key: string) {

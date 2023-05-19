@@ -22,7 +22,7 @@ table.csv button {
   color: white;
   font-weight: bold;
   font-size: 1.2rem;
-  transition: opacity 0.3 ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 table.csv button:hover {
   opacity: .75;
@@ -30,6 +30,7 @@ table.csv button:hover {
 
 /* KeyValuePairEditor */
 .kvp-view {
+  position: relative;
   display: block;
 }
 .kvp {
@@ -38,10 +39,17 @@ table.csv button:hover {
   gap: 1rem;
   padding: 1rem 0.5rem;
   cursor: pointer;
-  transition: all .3 cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: all .3s cubic-bezier(0.075, 0.82, 0.165, 1);
+
+  border-left: solid 3px transparent;
+  border-radius: 0.5rem;
 }
 
+.kvp.updated { border-left-color: var(--text-highlight-bg); }
+.kvp.new { border-left-color: var(--text-success); }
+
 .kvp .key {
+  position: relative;
   grid-column: 1;
   font-weight: var(--bold-weight);
   color: var(--color-accent-2);
@@ -49,12 +57,13 @@ table.csv button:hover {
   font-size: var(--font-ui-large);
 }
 .kvp .value {
+  position: relative;
   grid-column: span 3 / span 3;
   white-space: pre;
   background: var(--background-secondary);
   padding: 5px;
   border-radius: 3px;
-  transition: all .3 cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: all .3s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 .kvp:hover {
@@ -62,4 +71,48 @@ table.csv button:hover {
 }
 .kvp:hover .value {
   background: transparent;
+}
+
+.kvp .updated::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  content: "*";
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-highlight-bg);
+}
+.kvp .updated {
+  padding-right: 0.5rem;
+}
+
+
+button.kvp-add-new-item {
+  position: fixed;
+  top: 3rem; left: 0.5rem;
+
+  padding: 0.5rem 1rem;
+
+  /* simulate an Obsidian callout */
+  border: solid 1px rgba(var(--callout-important), var(--callout-border-opacity));
+  border-radius: var(--callout-radius);
+  mix-blend-mode: var(--callout-blend-mode);
+  background-color: rgba(var(--callout-important), 0.1);
+  color: var(--callout-important);
+  transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+button.kvp-add-new-item:hover {
+  border-color: rgba(var(--callout-important), 1);
+  background-color: rgba(var(--callout-important), 0.2);
+}
+
+
+/* KVP Modal */
+.kvp-modal .modal-content h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-accent);
 }
