@@ -32,6 +32,7 @@ table.csv button:hover {
 .kvp-view {
   position: relative;
   display: block;
+  margin-top: 2rem; /* shift down for toolbar */
 }
 .kvp {
   display: grid;
@@ -44,6 +45,7 @@ table.csv button:hover {
   border-left: solid 3px transparent;
   border-radius: 0.5rem;
 }
+.kvp.markdown { line-height: 1; }
 
 .kvp.updated { border-left-color: var(--text-highlight-bg); }
 .kvp.new { border-left-color: var(--text-success); }
@@ -64,6 +66,13 @@ table.csv button:hover {
   padding: 5px;
   border-radius: 3px;
   transition: all .3s cubic-bezier(0.075, 0.82, 0.165, 1);
+
+}
+.kvp .value p,
+.kvp .value blockquote,
+.kvp .value ul,
+.kvp .value ol {
+  margin-top: 0; margin-bottom: 0;
 }
 
 .kvp:hover {
@@ -87,28 +96,109 @@ table.csv button:hover {
 }
 
 
-button.kvp-add-new-item {
+/* kvp toolbar */
+nav.kvp-toolbar {
   position: fixed;
-  top: 3rem; left: 0.5rem;
+  top: 2.3rem; left: 0;
+  width: 100%;
+  padding: 0.3rem 1rem;
+  background-color: var(--background-primary-alt);
+  border-bottom: solid 2px var(--background-modifier-border);
 
-  padding: 0.5rem 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+nav.kvp-toolbar .zone {
+  display: inline-flex;
+  align-items: center;
+}
+nav.kvp-toolbar .zone.center { justify-content: center; }
+nav.kvp-toolbar .zone.right { justify-content: right; }
 
-  /* simulate an Obsidian callout */
-  border: solid 1px rgba(var(--callout-important), var(--callout-border-opacity));
+nav.kvp-toolbar button {
+  outline: none;
+  border: none; /* solid 1px rgba(var(--callout-quote), var(--callout-border-opacity)); */
   border-radius: var(--callout-radius);
   mix-blend-mode: var(--callout-blend-mode);
-  background-color: rgba(var(--callout-important), 0.1);
-  color: var(--callout-important);
+  background-color: rgba(var(--callout-quote), 0.1);
+  color: var(--callout-quote);
   transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
 
-  font-size: 1rem;
-  line-height: 1.2;
+  font-size: .7rem;
+  line-height: 1.2; 
+  margin: 0 0.2rem; 
+}
+nav.kvp-toolbar button:hover {
+  border-color: rgba(var(--callout-quote), 1);
+  background-color: rgba(var(--callout-quote), 0.2);
 }
 
-button.kvp-add-new-item:hover {
-  border-color: rgba(var(--callout-important), 1);
-  background-color: rgba(var(--callout-important), 0.2);
+/* style (colors) based Obsidian callout */
+nav.kvp-toolbar button.cyan {
+  border-color: rgba(var(--callout-tip), var(--callout-border-opacity));
+  background-color: rgba(var(--callout-tip), 0.1);
+  color: var(--callout-tip);
 }
+nav.kvp-toolbar button.cyan:hover {
+  border-color: rgba(var(--callout-tip), 1);
+  background-color: rgba(var(--callout-tip), 0.2);
+}
+nav.kvp-toolbar button.blue {
+  border-color: rgba(var(--callout-info), var(--callout-border-opacity));
+  background-color: rgba(var(--callout-info), 0.1);
+  color: var(--callout-info);
+}
+nav.kvp-toolbar button.blue:hover {
+  border-color: rgba(var(--callout-info), 1);
+  background-color: rgba(var(--callout-info), 0.2);
+}
+nav.kvp-toolbar button.green {
+  border-color: rgba(var(--callout-success), var(--callout-border-opacity));
+  background-color: rgba(var(--callout-success), 0.1);
+  color: var(--callout-success);
+}
+nav.kvp-toolbar button.green:hover {
+  border-color: rgba(var(--callout-success), 1);
+  background-color: rgba(var(--callout-success), 0.2);
+}
+nav.kvp-toolbar button.yellow {
+  border-color: rgba(var(--callout-question), var(--callout-border-opacity));
+  background-color: rgba(var(--callout-question), 0.1);
+  color: var(--callout-question);
+}
+nav.kvp-toolbar button.yellow:hover {
+  border-color: rgba(var(--callout-question), 1);
+  background-color: rgba(var(--callout-question), 0.2);
+}
+nav.kvp-toolbar button.orange {
+  border-color: rgba(var(--callout-warning), var(--callout-border-opacity));
+  background-color: rgba(var(--callout-warning), 0.1);
+  color: var(--callout-warning);
+}
+nav.kvp-toolbar button.orange:hover {
+  border-color: rgba(var(--callout-warning), 1);
+  background-color: rgba(var(--callout-warning), 0.2);
+}
+nav.kvp-toolbar button.red {
+  border-color: rgba(var(--callout-danger), var(--callout-border-opacity));
+  background-color: rgba(var(--callout-danger), 0.1);
+  color: var(--callout-danger);
+}
+nav.kvp-toolbar button.red:hover {
+  border-color: rgba(var(--callout-danger), 1);
+  background-color: rgba(var(--callout-danger), 0.2);
+}
+nav.kvp-toolbar button.purple {
+  border-color: rgba(var(--callout-example), var(--callout-border-opacity));
+  background-color: rgba(var(--callout-example), 0.1);
+  color: var(--callout-example);
+}
+nav.kvp-toolbar button.purple:hover {
+  border-color: rgba(var(--callout-example), 1);
+  background-color: rgba(var(--callout-example), 0.2);
+}
+
+
 
 
 /* KVP Modal */

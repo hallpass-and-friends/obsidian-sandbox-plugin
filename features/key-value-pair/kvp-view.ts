@@ -1,16 +1,21 @@
-import { TextFileView, WorkspaceLeaf } from "obsidian";
+import { MarkdownRenderer, TextFileView, WorkspaceLeaf } from "obsidian";
 import { KeyValuePairRepo } from "./kvp-repo";
 import { KeyValuePairModal, SubmitFn } from "./kvp-modal";
 import { SingleKeyValuePair } from "./kvp.models";
+import { Toolbar } from "./toolbar";
 //import { HushHushService } from "./hush-hush.service";
 
 export const VIEW_TYPE_KVP = "kvp-view";
+
+type RenderMode = 'text' | 'markdown';
 
 const CSS_UPDATED = "updated";
 const CSS_NEW = "new";
 export class KvpView extends TextFileView {
   repo: KeyValuePairRepo;
   wrapper: HTMLElement;
+  toolbar: Toolbar;
+  mode: RenderMode;
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
@@ -30,8 +35,11 @@ export class KvpView extends TextFileView {
   }
 
   async onOpen() {
+    this.setMode('text');
+    this.setupToolbar();
+
     this.wrapper = this.contentEl.createEl("div");
-    this.wrapper.classList.add('kvp-view');
+    this.wrapper.classList.add('kvp-view');    
   }
   async onClose() {
     this.contentEl.empty();
@@ -66,38 +74,31 @@ export class KvpView extends TextFileView {
         this.addKvpElement(key, data[key]);
     });
 
-    //build the 'add new item' button
-    const btnEl = this.wrapper.createEl('button');
-    btnEl.classList.add('kvp-add-new-item');
-    btnEl.textContent = '+ NEW';
-    btnEl.onclick = (() => {
-      this.addNewEntry();
-    });
   }
 
   protected addKvpElement(key: string, value: string, isNew?: boolean) {
-    const kvp = this.wrapper.createEl('div');
-    kvp.classList.add('kvp');
-    kvp.classList.toggle(CSS_NEW, isNew === true);
+    const kvpEl = this.wrapper.createEl('div');
+    kvpEl.classList.add('kvp');
+    kvpEl.classList.toggle(CSS_NEW, isNew === true);
     
-    const keyEl = kvp.createEl('div');
+    const keyEl = kvpEl.createEl('div');
     keyEl.classList.add('key');
     keyEl.textContent = key;
 
-    const valueEl = kvp.createEl('div');
+    const valueEl = kvpEl.createEl('div');
     valueEl.classList.add('value');
-    valueEl.textContent = value;
+    this.renderValue(valueEl, value);
 
     //click anywhere, get the editor
-    kvp.onclick = (ev) => {
-      this.edit({key, value: value}, kvp);
+    kvpEl.onclick = (ev) => {
+      this.edit({key, value: value}, kvpEl);
     }    
   }
 
   protected edit(kvp: SingleKeyValuePair, wrapper: HTMLDivElement) {
 
-    const keyEl =  wrapper.querySelector('.key');
-    const valueEl = wrapper.querySelector('.value');
+    const keyEl: HTMLElement =  wrapper.querySelector('.key') as HTMLElement;
+    const valueEl: HTMLElement = wrapper.querySelector('.value') as HTMLElement;
     if (!keyEl || !valueEl) { throw new Error('Could not locate key and/or value elements'); }
 
     const onSummit: SubmitFn = (key: string, newKey: string, newValue: string) => {
@@ -105,8 +106,9 @@ export class KvpView extends TextFileView {
       this.repo.update(key, { key: newKey, value: newValue});
       keyEl.textContent = newKey;
       keyEl.classList.toggle(CSS_UPDATED, newKey != kvp.key);
-      valueEl.textContent = newValue;
+
       valueEl.classList.toggle(CSS_UPDATED, newValue != kvp.value);
+      this.renderValue(valueEl, newValue);
 
       //the full wrapper gets the 'updated' class if either the key or value elements have the class
       wrapper.classList.toggle(CSS_UPDATED, !wrapper.classList.contains(CSS_NEW) && (keyEl.classList.contains(CSS_UPDATED) || valueEl.classList.contains(CSS_UPDATED)));
@@ -133,4 +135,79 @@ export class KvpView extends TextFileView {
       .open();
 
   }
+
+  protected renderValue(el: HTMLElement, value: string) {
+    el.empty(); //reset
+    switch (this.mode) {
+      case 'markdown':
+        MarkdownRenderer.renderMarkdown(value, el, this.app.workspace.getActiveFile()?.path || '', this.leaf.view);
+        break;
+      case 'text':
+        el.textContent = value;
+        break;
+      default:
+        throw new Error(`KvpView does not support a render mode of ${this.mode}`);
+    }
+    return el;
+  }
+
+  protected setupToolbar() {
+    this.toolbar = new Toolbar(this.contentEl);
+
+    const modeText = (mode: RenderMode) => mode === 'text' ? '= TEXT' : '# HTML';
+    const modeTip = (mode: RenderMode) => mode === 'text' ? 'click to render as HTML' : 'click to show as text';
+
+
+    this.toolbar.addItem('left', {
+      id: 'add',
+      label: '+NEW',
+      tip: 'Add new key-value pair',
+      css: 'cyan',
+      onClick: (ev, btn) => {
+        this.addNewEntry();
+      }
+    })
+    .addItem('center', {
+      id: 'expand-all',
+      label: '🔻',
+      tip: 'expand all items',
+      css: 'orange',
+      onClick: (ev, btn) => {
+        console.log("EXPAND ALL")
+      }
+    })
+    .addItem('center', {
+      id: 'collapse-all',
+      label: '🔺',
+      tip: 'collapse all items',
+      css: 'orange',
+      onClick: (ev, btn) => {
+        console.log("COLLAPSE ALL")
+      }
+    })
+    .addItem('right', {
+      id: 'mode',
+      label: modeText(this.mode),
+      tip: modeTip(this.mode),
+      css: [],
+      onClick: (ev, btn) => {
+        this.setMode(this.mode === 'text' ? 'markdown' : 'text', true);
+        btn.textContent = modeText(this.mode);
+        btn.title = modeTip(this.mode);
+      }
+    });
+  }
+
+  protected setMode(mode: RenderMode, updateChildren?: boolean) {
+    this.mode = mode;
+    if (this.wrapper) {
+      this.wrapper.classList.toggle('text', mode === 'text');
+      this.wrapper.classList.toggle('markdown', mode === 'markdown');
+    }
+    if (updateChildren) {
+      this.refresh();
+    } 
+  }
+
+
 }
