@@ -97,7 +97,7 @@ table.csv button:hover {
 
 
 /* kvp toolbar */
-nav.kvp-toolbar {
+.kvp-toolbar {
   position: fixed;
   top: 2.3rem; left: 0;
   width: 100%;
@@ -108,12 +108,16 @@ nav.kvp-toolbar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
 }
-nav.kvp-toolbar .zone {
-  display: inline-flex;
+.kvp-toolbar .zone.left { justify-content: left; }
+.kvp-toolbar .zone.center { justify-content: center; }
+.kvp-toolbar .zone.right { justify-content: right; }
+
+
+/* --- Menu Group --- */
+nav.menu-group {
+  display: flex;
   align-items: center;
 }
-nav.kvp-toolbar .zone.center { justify-content: center; }
-nav.kvp-toolbar .zone.right { justify-content: right; }
 
 
 /* --- BtnComponent (.btn) --- */

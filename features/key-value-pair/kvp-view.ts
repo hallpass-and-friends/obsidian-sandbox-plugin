@@ -172,7 +172,7 @@ export class KvpView extends TextFileView {
       id: 'expand-all',
       icon: 'caret-down-solid',
       title: 'expand all items',
-      tint: 'orange',
+      tint: 'none',
       onClick: (ev, btn) => {
         console.log("EXPAND ALL")
       }
@@ -181,7 +181,7 @@ export class KvpView extends TextFileView {
       id: 'collapse-all',
       icon: 'caret-up-solid',
       title: 'collapse all items',
-      tint: 'orange',
+      tint: 'none',
       onClick: (ev, btn) => {
         console.log("COLLAPSE ALL")
       }

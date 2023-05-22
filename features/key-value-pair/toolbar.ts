@@ -1,31 +1,42 @@
-import { BtnComponent, IBtnComponentConfig } from "lib";
+import { HtmlHelper, IBtnComponentConfig } from "lib";
+import { MenuGroup } from "./menu-group";
 
 export interface IToolbarItem extends IBtnComponentConfig {
   id: string;
-  onClick: (ev: MouseEvent, btn: HTMLButtonElement) => void;
-}
+ }
 
 
 export interface IZone {
-  zoneEl: HTMLElement;
-  items: IToolbarItem[];
+  menu: MenuGroup<IToolbarItem>;
 }
 
 export type ZoneName = 'left' | 'center' | 'right';
 export type Zones = { [key in ZoneName]: IZone };
 
+export interface IZoneWithName extends IZone {
+  name: ZoneName;
+}
+
 export class Toolbar {
   toolbarEl: HTMLElement;
   zones: Zones;
+  protected get zonesList(): IZoneWithName[] {
+    return Object.keys(this.zones).map((key) => {
+      return {
+        ...this.zones[key as ZoneName],
+        name: key as ZoneName
+      }
+    });
+  }
   protected get items() {
-    return Object.keys(this.zones).reduce((ret, key) => {
+    return this.zonesList.reduce((ret, zone) => {
       return [
         ...ret,
-        ...this.zones[key as ZoneName].items
+        ...zone.menu.items
       ];
     }, []);
   }
-
+  
 
   constructor(contentEl: HTMLElement) {
     this.initialize(contentEl);
@@ -39,7 +50,7 @@ export class Toolbar {
 
 
   addItem(zoneName: ZoneName, item: IToolbarItem) {
-    this.createNavBtn(this.zones[zoneName], item);
+    this.zones[zoneName].menu.addItem(item);
     return this;
   }
 
@@ -47,74 +58,31 @@ export class Toolbar {
   //  if no css is provided, then toggle disabled
   //  if force is provided, then disabled is set to that value
   toggle(item: string | IToolbarItem, css?: string | string[] | null, force?: boolean) {
-    const id = typeof(item) === 'string' ? item : item?.id;
-    if (!id) {
-      throw new Error(`Toolbar.toggle() - missing id param`);
-    }
-
-    const { btn } = this.queryItem(id);
-    if (!btn) { 
-      throw new Error(`Toolbar.toggle() - could not locate btn with id: ${id}`);
-    }
-
-    css = this.toNullableStringArray(css);
-    if (css) {
-      css.forEach(c => btn.classList.toggle(c, force === true));
-    } else {
-      // toggle disabled
-      btn.disabled = typeof(force) === 'boolean' ? force : !btn.disabled;
-    }
-
+    
+    const zones = this.zonesList;
+    let btn: HTMLButtonElement | null = null;
+    for (let i = 0; i < zones.length && !btn; i++) {
+      btn = zones[i].menu.toggle(item, css, force);      
+    } 
+      
     return btn;
   }
 
 
   protected initialize(contentEl: HTMLElement) {
-    this.toolbarEl = this.createEl(contentEl, 'nav', 'kvp-toolbar');
+    this.toolbarEl = HtmlHelper.createEl(contentEl, 'nav', 'kvp-toolbar');
+    
     this.zones = {
       left: {
-        zoneEl: this.createEl(this.toolbarEl, 'span', ['zone', 'left']),
-        items: []
+        menu: new MenuGroup(this.toolbarEl, ['zone', 'left'])
       },
       center: {
-        zoneEl: this.createEl(this.toolbarEl, 'span', ['zone', 'center']),
-        items: []
+        menu: new MenuGroup(this.toolbarEl, ['zone', 'center'])
       },
       right: {
-        zoneEl: this.createEl(this.toolbarEl, 'span', ['zone', 'right']),
-        items: []
+        menu: new MenuGroup(this.toolbarEl, ['zone', 'right'])
       },
     };
   }
 
-  private createNavBtn(zone: IZone, item: IToolbarItem) {
-    const btn = BtnComponent.appendTo(zone.zoneEl, {
-      ...item,
-      data: {
-        ...item.data,
-        id: item.id     //add the id to the data-id attribute
-      }
-    });
-
-    btn.onclick = ((ev) => item.onClick(ev, btn));
-    return btn;
-  }
-
-  private createEl(parentEl: HTMLElement, tag: keyof HTMLElementTagNameMap, css?: string | string[] | null) {
-    const el = parentEl.createEl(tag);
-    
-    //add any classes
-    css = this.toNullableStringArray(css);
-    if (css) {
-      css.forEach(c => el.classList.add(c));
-    }
-
-    return el;
-  }
-
-
-  private toNullableStringArray(value?: string | string[] | null) {
-    return typeof(value) === 'string' ? [value]
-      : (Array.isArray(value) ? value : null);
-  }
 }
