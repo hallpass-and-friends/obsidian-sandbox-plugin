@@ -160,27 +160,28 @@ export class KvpView extends TextFileView {
 
     this.toolbar.addItem('left', {
       id: 'add',
-      label: '+NEW',
-      tip: 'Add new key-value pair',
-      css: 'cyan',
+      icon: 'plus',
+      label: 'NEW',
+      title: 'Add new key-value pair',
+      tint: 'cyan',
       onClick: (ev, btn) => {
         this.addNewEntry();
       }
     })
     .addItem('center', {
       id: 'expand-all',
-      label: '🔻',
-      tip: 'expand all items',
-      css: 'orange',
+      icon: 'caret-down-solid',
+      title: 'expand all items',
+      tint: 'orange',
       onClick: (ev, btn) => {
         console.log("EXPAND ALL")
       }
     })
     .addItem('center', {
       id: 'collapse-all',
-      label: '🔺',
-      tip: 'collapse all items',
-      css: 'orange',
+      icon: 'caret-up-solid',
+      title: 'collapse all items',
+      tint: 'orange',
       onClick: (ev, btn) => {
         console.log("COLLAPSE ALL")
       }
@@ -188,8 +189,8 @@ export class KvpView extends TextFileView {
     .addItem('right', {
       id: 'mode',
       label: modeText(this.mode),
-      tip: modeTip(this.mode),
-      css: [],
+      title: modeTip(this.mode),
+      tint: 'purple',
       onClick: (ev, btn) => {
         this.setMode(this.mode === 'text' ? 'markdown' : 'text', true);
         btn.textContent = modeText(this.mode);

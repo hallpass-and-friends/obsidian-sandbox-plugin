@@ -1,10 +1,7 @@
+import { BtnComponent, IBtnComponentConfig } from "lib";
 
-export interface IToolbarItem {
+export interface IToolbarItem extends IBtnComponentConfig {
   id: string;
-  label: string;
-  tip?: string;
-  css?: string | string[];
-  disabled?: boolean;
   onClick: (ev: MouseEvent, btn: HTMLButtonElement) => void;
 }
 
@@ -91,15 +88,15 @@ export class Toolbar {
   }
 
   private createNavBtn(zone: IZone, item: IToolbarItem) {
-    const btn = this.createEl(zone.zoneEl, 'button', item.css) as HTMLButtonElement;
-    
-    btn.dataset.id = item.id;
-    btn.textContent = item.label;
-    btn.disabled = item.disabled === true;
+    const btn = BtnComponent.appendTo(zone.zoneEl, {
+      ...item,
+      data: {
+        ...item.data,
+        id: item.id     //add the id to the data-id attribute
+      }
+    });
+
     btn.onclick = ((ev) => item.onClick(ev, btn));
-    if (item.tip) {
-      btn.title = item.tip;
-    }
     return btn;
   }
 
