@@ -92,6 +92,7 @@ export class Toolbar {
 
   private createNavBtn(zone: IZone, item: IToolbarItem) {
     const btn = this.createEl(zone.zoneEl, 'button', item.css) as HTMLButtonElement;
+    
     btn.dataset.id = item.id;
     btn.textContent = item.label;
     btn.disabled = item.disabled === true;

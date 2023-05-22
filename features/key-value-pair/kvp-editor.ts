@@ -17,7 +17,6 @@ export default class KvpEditor extends FeaturesAbstract {
   }
 
   onunload(): void {
-    //nothing to do??
-    
+    this.main.app.workspace.detachLeavesOfType(VIEW_TYPE_KVP); 
   }
 }
