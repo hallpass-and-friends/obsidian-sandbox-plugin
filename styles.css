@@ -39,11 +39,12 @@ table.csv button:hover {
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   padding: 1rem 0.5rem;
-  cursor: pointer;
   transition: all .3s cubic-bezier(0.075, 0.82, 0.165, 1);
 
   border-left: solid 3px transparent;
   border-radius: 0.5rem;
+
+  overflow: hidden;
 }
 .kvp.markdown { line-height: 1; }
 
@@ -53,10 +54,33 @@ table.csv button:hover {
 .kvp .key {
   position: relative;
   grid-column: 1;
+  cursor: pointer;
+}
+.kvp .key .inner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.kvp .key .label {
   font-weight: var(--bold-weight);
   color: var(--color-accent-2);
-  text-align: right;
   font-size: var(--font-ui-large);
+}
+.kvp .key .icon {
+  display: inline-block;
+  margin-left: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+.kvp .key .icon svg {
+  fill: var(--color-accent-2);
+  width: 1rem;
+  height: 1rem;
+}
+.kvp.collapsed .key .icon {
+  transform: rotate(180deg) translateY(0);
+}
+.kvp.open .key .icon {
+  transform: rotate(0) translateY(0.25rem);
 }
 .kvp .value {
   position: relative;
@@ -65,8 +89,21 @@ table.csv button:hover {
   background: var(--background-secondary);
   padding: 5px;
   border-radius: 3px;
-  transition: all .3s cubic-bezier(0.075, 0.82, 0.165, 1);
-
+  transition: all .2s ease-in-out;
+}
+.kvp.open .value { 
+  opacity: 1; 
+}
+.kvp.collapsed .value { 
+  height: 1rem;
+  opacity: 0.4; 
+}
+.kvp.collapsed .value::after { 
+  position: absolute;
+  bottom: 0; right: 2rem;
+  content: '...';
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 .kvp .value p,
 .kvp .value blockquote,

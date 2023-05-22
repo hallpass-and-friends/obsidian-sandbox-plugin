@@ -3,11 +3,14 @@ import { KeyValuePairRepo } from "./kvp-repo";
 import { KeyValuePairModal, SubmitFn } from "./kvp-modal";
 import { SingleKeyValuePair } from "./kvp.models";
 import { Toolbar } from "./toolbar";
+import { HtmlHelper, icons } from "lib";
 //import { HushHushService } from "./hush-hush.service";
 
 export const VIEW_TYPE_KVP = "kvp-view";
 
 type RenderMode = 'text' | 'markdown';
+type ViewMode = 'collapsed' | 'open';
+const viewModes: ViewMode[] = ['collapsed', 'open'];
 
 const CSS_UPDATED = "updated";
 const CSS_NEW = "new";
@@ -16,6 +19,11 @@ export class KvpView extends TextFileView {
   wrapper: HTMLElement;
   toolbar: Toolbar;
   mode: RenderMode;
+
+  protected _cache: {
+    kvp: SingleKeyValuePair,
+    row: HTMLElement
+  }[] = [];
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
@@ -35,7 +43,7 @@ export class KvpView extends TextFileView {
   }
 
   async onOpen() {
-    this.setMode('text');
+    this.setRenderMode('text');
     this.setupToolbar();
 
     this.wrapper = this.contentEl.createEl("div");
@@ -70,29 +78,49 @@ export class KvpView extends TextFileView {
 
     const data = this.repo.get();
 
+    this._cache = []; //reset
+
     Object.keys(data).forEach(key => {
-        this.addKvpElement(key, data[key]);
+      this._cache.push({
+        kvp: {
+          key,
+          value: data[key]
+        },
+        row: this.addKvpElement(key, data[key])
+      });
     });
 
   }
 
   protected addKvpElement(key: string, value: string, isNew?: boolean) {
-    const kvpEl = this.wrapper.createEl('div');
-    kvpEl.classList.add('kvp');
+    const kvpEl = HtmlHelper.createEl(this.wrapper, 'div', 'kvp');
     kvpEl.classList.toggle(CSS_NEW, isNew === true);
     
-    const keyEl = kvpEl.createEl('div');
+    //key
+    const keyEl = HtmlHelper.createEl(kvpEl, 'div', 'key');
     keyEl.classList.add('key');
-    keyEl.textContent = key;
+    const keyInnerEl = HtmlHelper.createEl(keyEl, 'div', 'inner');
+    const keyLabelEl = HtmlHelper.createEl(keyInnerEl, 'span', 'label');
+    keyLabelEl.textContent = key;
+    const keyIconEl = HtmlHelper.createEl(keyInnerEl, 'span', 'icon');
+    keyIconEl.innerHTML = icons.svg["caret-down-solid"];
 
-    const valueEl = kvpEl.createEl('div');
-    valueEl.classList.add('value');
+    //value
+    const valueEl = HtmlHelper.createEl(kvpEl, 'div', 'value');
     this.renderValue(valueEl, value);
 
-    //click anywhere, get the editor
-    kvpEl.onclick = (ev) => {
-      this.edit({key, value: value}, kvpEl);
-    }    
+
+    //--- events ---//
+
+    //click key, toggle view
+    keyEl.onclick = (ev) => {
+      this.toggleRowViewMode(kvpEl);
+    } 
+    
+    //--- default to collapsed state ---//
+    this.updateRowViewMode(kvpEl, 'collapsed');
+
+    return kvpEl;
   }
 
   protected edit(kvp: SingleKeyValuePair, wrapper: HTMLDivElement) {
@@ -136,6 +164,8 @@ export class KvpView extends TextFileView {
 
   }
 
+  // --- Value Render Mode === //
+
   protected renderValue(el: HTMLElement, value: string) {
     el.empty(); //reset
     switch (this.mode) {
@@ -174,7 +204,9 @@ export class KvpView extends TextFileView {
       title: 'expand all items',
       tint: 'none',
       onClick: (ev, btn) => {
-        console.log("EXPAND ALL")
+        this._cache.forEach(c => {
+          this.updateRowViewMode(c.row, 'open');
+        });
       }
     })
     .addItem('center', {
@@ -183,7 +215,9 @@ export class KvpView extends TextFileView {
       title: 'collapse all items',
       tint: 'none',
       onClick: (ev, btn) => {
-        console.log("COLLAPSE ALL")
+        this._cache.forEach(c => {
+          this.updateRowViewMode(c.row, 'collapsed');
+        });
       }
     })
     .addItem('right', {
@@ -192,23 +226,57 @@ export class KvpView extends TextFileView {
       title: modeTip(this.mode),
       tint: 'purple',
       onClick: (ev, btn) => {
-        this.setMode(this.mode === 'text' ? 'markdown' : 'text', true);
+        this.setRenderMode(this.mode === 'text' ? 'markdown' : 'text', true);
         btn.textContent = modeText(this.mode);
         btn.title = modeTip(this.mode);
       }
     });
   }
 
-  protected setMode(mode: RenderMode, updateChildren?: boolean) {
+  protected setRenderMode(mode: RenderMode, updateChildren?: boolean) {
     this.mode = mode;
     if (this.wrapper) {
       this.wrapper.classList.toggle('text', mode === 'text');
       this.wrapper.classList.toggle('markdown', mode === 'markdown');
     }
     if (updateChildren) {
-      this.refresh();
+      this._cache.forEach(item => {
+        this.renderValue(item.row.querySelector('.value') as HTMLElement, item.kvp.value);
+      });
     } 
   }
+
+
+  // -- RowViewMode Methods -- //
+
+  protected getRowViewMode(row: HTMLElement) {
+    let mode: ViewMode | undefined = undefined;
+
+    viewModes.forEach(m => {
+      if (row.classList.contains(m)) {
+        mode = m;
+      }
+    });
+
+    return mode;
+  }
+
+  protected updateRowViewMode(row: HTMLElement, state: ViewMode) {
+    viewModes.forEach(mode => {
+      row.classList.toggle(mode, mode === state);
+    });
+  }
+
+  protected toggleRowViewMode(row: HTMLElement) {
+    const current = this.getRowViewMode(row);
+    if (current) {
+      //change to the next mode (in viewModes)
+      this.updateRowViewMode(row, viewModes[(viewModes.indexOf(current) + 1) % viewModes.length])
+    } else {
+      this.updateRowViewMode(row, viewModes[0]); //default to the first
+    }
+  }
+
 
 
 }
