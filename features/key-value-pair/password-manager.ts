@@ -34,7 +34,7 @@ export class PasswordManager {
     }
 
     static hash(text: string, salt: string, iterations = 1000) {
-      return crypto.pbkdf2Sync(text, salt, iterations, 512, 'sha512');      
+      return crypto.pbkdf2Sync(text, salt, iterations, 256, 'sha256');      
     }
   
     //#endregion
