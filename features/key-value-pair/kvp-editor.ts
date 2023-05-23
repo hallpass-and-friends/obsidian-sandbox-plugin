@@ -8,12 +8,14 @@ export default class KvpEditor extends FeaturesAbstract {
     super(main);
   }
 
-  onload(): void {
+  async onload() {
     this.main.registerView(
       VIEW_TYPE_KVP,
       (leaf: WorkspaceLeaf) => new KvpView(leaf)
     );
     this.main.registerExtensions(["kvp"], VIEW_TYPE_KVP);
+    const settings = await this.main.loadData()
+    console.log("Got Settings in KvpEditor", settings);
   }
 
   onunload(): void {

@@ -1,4 +1,4 @@
-import { MarkdownRenderer, TextFileView, WorkspaceLeaf } from "obsidian";
+import { KeymapEventHandler, MarkdownRenderer, TextFileView, WorkspaceLeaf } from "obsidian";
 import { KeyValuePairRepo } from "./kvp-repo";
 import { KeyValuePairModal, SubmitFn } from "./kvp-modal";
 import { SingleKeyValuePair } from "./kvp.models";
@@ -25,21 +25,14 @@ export class KvpView extends TextFileView {
     row: HTMLElement
   }[] = [];
 
+  protected keyEventHandler: KeymapEventHandler;
+
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
     this.repo = new KeyValuePairRepo();
 
     console.log("Vault Name", this.app.vault.getName());
     console.log("Vault Root", this.app.vault.getRoot());
-    
-    const KEY = "HallpassObsidian";
-    if (process.env[KEY]) {
-      console.log('GUID - found', process.env[KEY]);
-    } else {
-      process.env[KEY] = crypto.randomUUID();
-      console.log('GUID - had to reset', process.env[KEY]);
-    }
-
   }
 
   async onOpen() {
@@ -47,10 +40,13 @@ export class KvpView extends TextFileView {
     this.setupToolbar();
 
     this.wrapper = this.contentEl.createEl("div");
-    this.wrapper.classList.add('kvp-view');    
+    this.wrapper.classList.add('kvp-view');     
   }
   async onClose() {
     this.contentEl.empty();
+    if (this.keyEventHandler) {
+      this.app.scope.unregister(this.keyEventHandler);
+    }
   }
 
 
